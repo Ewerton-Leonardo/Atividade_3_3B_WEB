@@ -1,0 +1,129 @@
+<html ng-app="atividadeFormulario">
+<head>
+  <meta charset="UTF-8">
+  <title>Atividade Formulario</title>
+  <style>
+    .jumbotron {
+      width: 600px;
+      text-align: center;
+      margin-top: 20px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    h3 {
+      margin-bottom: 30px;
+    }
+    .table {
+      margin-top: 20px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    tr {
+      padding: 10px;
+    }
+    .form-control {
+      margin-bottom: 5px;
+    }
+    .negrito {
+      font-weight: bold;
+    }
+    .error{
+      margin-left: 85px;
+      margin-top: 10px;
+      color: red;
+  }
+  </style>
+  <script src="angular.js"></script>
+  <script>
+      angular.module("atividadeFormulario", []);
+      angular.module("atividadeFormulario").controller("atividadeFormularioCtrl", function ($scope) {
+          $scope.app = "Atividade Formulario";
+          $scope.alunos = [
+          ];
+          $scope.sexos = [{nome: "Masculino"},{nome: "Feminino"}];
+          $scope.adicionarAluno = function (aluno) {
+              $scope.alunos.push(angular.copy(aluno));
+              delete $scope.aluno;
+              $scope.alunoForm.$setPristine();
+              $scope.alunoForm.$setDirty();
+          };
+          $scope.apagarAlunos = function (alunos) {
+              $scope.alunos = alunos.filter(function (aluno) {
+                  if (!aluno.selecionado) return aluno;
+              });
+          };
+          $scope.isAlunoSelecionado = function (alunos) {
+              return alunos.some(function (aluno) {
+                  return aluno.selecionado;
+              });
+          };
+      });
+  </script>
+</head>
+<body ng-controller="atividadeFormularioCtrl">
+<div id="content">
+<div class="jumbotron">
+  <h3>{{app}}</h3>
+  <table ng-show="alunos.length > 0" class="table">
+    <tr rowspan="5" text-align="center">
+      <th>Alunos Web</th>
+    </tr>
+    <tr ng-class="{'negrito': aluno.selecionado}" ng-repeat="aluno in alunos">
+      <td><input type="checkbox" ng-model="aluno.selecionado"/></td>
+      <td>{{aluno.nome}}</td>
+      <td>{{aluno.matricula}}</td>
+      <td>{{aluno.sexo.nome}}</td>
+      <td>{{aluno.email}}</td>
+    </tr>
+  </table>
+  <hr/>
+  <form name="alunoForm" method="post">
+    <input class="form-control" type="text" ng-model="aluno.nome" name="nome" placeholder="Nome" ng-required="true" ng-minlength="15"/><br>
+    <div class="error">
+    <span ng-show="alunoForm.nome.$error.required"> O nome é obrigatório </span>
+   <span ng-show="alunoForm.nome.$error.minlength"> O tamanho mínimo é de 15 caracteres.</span>
+    </div>
+    <input class="form-control" type="text" ng-model="aluno.matricula" name="matricula" placeholder="Matrícula" ng-required="true" ng-minlength="10" ng-maxlength="11"/><br>
+     <div class="error">
+    <span ng-show="alunoForm.matricula.$error.required"> A matrícula é  obrigatória </span>
+    <span ng-show="alunoForm.matricula.$error.minlength"> O tamanho mínimo é de 10 caracteres.</span>
+    <span ng-show="alunoForm.matricula.$error.minlength"> O tamanho máximo é de 11 caraacteres </span>
+  </div>
+    <select title="Sexo" class="form-control" ng-model="aluno.sexo" ng-init="aluno.sexo = sexo[0]" ng-options="sexo.nome for sexo in sexos">
+    </select><br>
+    <input class="form-control" type="email" ng-model="aluno.email" name="email" placeholder="Email" ng-required="true" ng-pattern="/^\w+@ifpb.mail/" /><br>
+   <div class="error">
+    <span ng-show="alunoForm.email.$error.required"> O email é  obrigatório </span>
+    </div>    
+    <input type="submit" name="Enviar" ng-click="adicionarAluno(aluno)" ng-disabled="alunoForm.$invalid">
+  </form>
+  
+  </div>
+
+  <div ng-show="alunoForm.nome.$error.required" class="alert alert-danger">
+    Por favor, preencha o campo nome!
+  </div>
+
+    <div ng-show="alunoForm.nome.$error.minlength" class="alert alert-danger">
+        O nome do novo aluno está muito pequeno!
+    </div>
+
+  <div ng-show="alunoForm.matricula.$error.required" class="alert alert-danger">
+    Por favor, preencha o campo matrícula!
+  </div>
+    <div ng-show="alunoForm.matricula.$error.minlength || alunoForm.matricula.$error.maxlength" class="alert alert-danger">
+        A matrícula do novo aluno está inválida!
+  </div>
+
+  <div ng-show="alunoForm.email.$error.required" class="alert alert-danger">
+    Por favor, preencha o campo email!
+  </div>
+
+  <div ng-show="alunoForm.email.$error.pattern" class="alert alert-danger">
+      O e-mail do novo aluno está inválido!
+  </div>
+
+  <button class="btn btn-danger btn-block" ng-click="apagarAlunos(alunos)" ng-if="isAlunoSelecionado(alunos)">Apagar Alunos</button>
+</div>
+</body>
+</html>
