@@ -68,12 +68,18 @@
     <tr rowspan="5" text-align="center">
       <th>Alunos Web</th>
     </tr>
-    <tr ng-class="{'negrito': aluno.selecionado}" ng-repeat="aluno in alunos">
+      <tr>
+          <td><input type="text" ng-model="criterioDeBuscaNome" placeholder="Nome?"></td>
+          <td><input type="text" ng-model="criterioDeBuscaMatricula" placeholder="Matricula?"></td>
+      </tr>
+    <tr ng-class="{'negrito': aluno.selecionado}" ng-repeat="aluno in alunos | filter:{nome:criterioDeBuscaNome} | filter: {matricula:criterioDeBuscaMatricula}">
       <td><input type="checkbox" ng-model="aluno.selecionado"/></td>
       <td>{{aluno.nome}}</td>
       <td>{{aluno.matricula}}</td>
       <td>{{aluno.sexo.nome}}</td>
       <td>{{aluno.email}}</td>
+      <td>{{ aluno.data_nasc }}</td>
+        <td>{{ aluno.preco_matricula}}</td>
     </tr>
   </table>
   <hr/>
@@ -94,8 +100,11 @@
     <input class="form-control" type="email" ng-model="aluno.email" name="email" placeholder="Email" ng-required="true" ng-pattern="/^\w+@ifpb.mail/" /><br>
    <div class="error">
     <span ng-show="alunoForm.email.$error.required"> O email é  obrigatório </span>
-    </div>    
-    <input type="submit" name="Enviar" ng-click="adicionarAluno(aluno)" ng-disabled="alunoForm.$invalid">
+    </div>
+      <input class="form-control" type="date" ng-model="aluno.data_nasc" name="data_nasc"/><br>
+      <input class="form-control" type="email" ng-model="aluno.preco_matricula" name="preco_matricula"/><br>
+
+      <input type="submit" name="Enviar" ng-click="adicionarAluno(aluno)" ng-disabled="alunoForm.$invalid">
   </form>
   
   </div>
