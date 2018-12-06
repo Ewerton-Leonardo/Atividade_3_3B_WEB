@@ -2,6 +2,8 @@
 <head>
   <meta charset="UTF-8">
   <title>Atividade Formulario</title>
+  <link rel="stylesheet" href="bootstrap.min.css">
+  <script src="bootstrap.min.js"></script>
   <style>
     .jumbotron {
       width: 600px;
@@ -15,11 +17,6 @@
     }
     .table {
       margin-top: 20px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    tr {
-      padding: 10px;
     }
     .form-control {
       margin-bottom: 5px;
@@ -27,25 +24,32 @@
     .negrito {
       font-weight: bold;
     }
-    .error{
-      margin-left: 85px;
-      margin-top: 10px;
-      color: red;
-  }
   </style>
   <script src="angular.js"></script>
   <script>
       angular.module("atividadeFormulario", []);
-      angular.module("atividadeFormulario").controller("atividadeFormularioCtrl", function ($scope) {
+      angular.module("atividadeFormulario").config(['$qProvider', function ($qProvider) {
+          $qProvider.errorOnUnhandledRejections(false);
+      }]);
+      angular.module("atividadeFormulario").controller("atividadeFormularioCtrl", function ($scope, $http) {
           $scope.app = "Atividade Formulario";
           $scope.alunos = [
           ];
-          $scope.sexos = [{nome: "Masculino"},{nome: "Feminino"}];
+          $scope.sexos = ["Masculino","Feminino"];
+
+          var carregarAlunos = function() {
+              $http.get('https://cadastro-aluno.mrton-br.repl.co').then(function(data, status){
+                $scope.alunos = data.data
+              })
+          };
+          
           $scope.adicionarAluno = function (aluno) {
-              $scope.alunos.push(angular.copy(aluno));
-              delete $scope.aluno;
-              $scope.alunoForm.$setPristine();
-              $scope.alunoForm.$setDirty();
+            console.log(aluno)
+              $http.post("https://cadastro-aluno.mrton-br.repl.co", aluno).then(function(data){
+                delete $scope.aluno;
+                $scope.alunoForm.$setPristine();
+                carregarAlunos();
+              });
           };
           $scope.apagarAlunos = function (alunos) {
               $scope.alunos = alunos.filter(function (aluno) {
@@ -57,15 +61,17 @@
                   return aluno.selecionado;
               });
           };
+
+          carregarAlunos();
       });
   </script>
 </head>
 <body ng-controller="atividadeFormularioCtrl">
 <div id="content">
 <div class="jumbotron">
-  <h3>{{app}}</h3>
+  <h3>{{ app }}</h3>
   <table ng-show="alunos.length > 0" class="table">
-    <tr rowspan="5" text-align="center">
+    <tr text-align="center">
       <th>Alunos Web</th>
     </tr>
       <tr>
@@ -76,7 +82,7 @@
       <td><input type="checkbox" ng-model="aluno.selecionado"/></td>
       <td>{{aluno.nome}}</td>
       <td>{{aluno.matricula}}</td>
-      <td>{{aluno.sexo.nome}}</td>
+      <td>{{aluno.sexo}}</td>
       <td>{{aluno.email}}</td>
       <td>{{ aluno.data_nasc }}</td>
         <td>{{ aluno.preco_matricula}}</td>
@@ -86,25 +92,25 @@
   <form name="alunoForm" method="post">
     <input class="form-control" type="text" ng-model="aluno.nome" name="nome" placeholder="Nome" ng-required="true" ng-minlength="15"/><br>
     <div class="error">
-    <span ng-show="alunoForm.nome.$error.required"> O nome é obrigatório </span>
-   <span ng-show="alunoForm.nome.$error.minlength"> O tamanho mínimo é de 15 caracteres.</span>
+    <div ng-show="alunoForm.nome.$error.required"  class="alert alert-danger"> O nome é obrigatório </div>
+   <div ng-show="alunoForm.nome.$error.minlength" class="alert alert-danger"> O tamanho mínimo é de 15 caracteres.</div>
     </div>
     <input class="form-control" type="text" ng-model="aluno.matricula" name="matricula" placeholder="Matrícula" ng-required="true" ng-minlength="10" ng-maxlength="11"/><br>
      <div class="error">
-    <span ng-show="alunoForm.matricula.$error.required"> A matrícula é  obrigatória </span>
-    <span ng-show="alunoForm.matricula.$error.minlength"> O tamanho mínimo é de 10 caracteres.</span>
-    <span ng-show="alunoForm.matricula.$error.minlength"> O tamanho máximo é de 11 caraacteres </span>
+    <div ng-show="alunoForm.matricula.$error.required" class="alert alert-danger"> A matrícula é  obrigatória </div>
+    <div ng-show="alunoForm.matricula.$error.minlength" class="alert alert-danger"> O tamanho mínimo é de 10 caracteres.</div>
+    <div ng-show="alunoForm.matricula.$error.maxlength" class="alert alert-danger"> O tamanho máximo é de 11 caraacteres </div>
   </div>
-    <select title="Sexo" class="form-control" ng-model="aluno.sexo" ng-init="aluno.sexo = sexo[0]" ng-options="sexo.nome for sexo in sexos">
+    <select title="Sexo" class="form-control" ng-model="aluno.sexo" ng-init="aluno.sexo = sexo[0]" ng-options="sexo for sexo in sexos">
     </select><br>
     <input class="form-control" type="email" ng-model="aluno.email" name="email" placeholder="Email" ng-required="true" ng-pattern="/^\w+@ifpb.mail/" /><br>
    <div class="error">
-    <span ng-show="alunoForm.email.$error.required"> O email é  obrigatório </span>
+    <div ng-show="alunoForm.email.$error.required" class="alert alert-danger"> O email é  obrigatório </div>
     </div>
       <input class="form-control" type="date" ng-model="aluno.data_nasc" name="data_nasc"/><br>
-      <input class="form-control" type="email" ng-model="aluno.preco_matricula" name="preco_matricula"/><br>
+      <input class="form-control" type="number" ng-model="aluno.preco_matricula" name="preco_matricula" placeholder="Preço da matrícula"/><br>
 
-      <input type="submit" name="Enviar" ng-click="adicionarAluno(aluno)" ng-disabled="alunoForm.$invalid">
+      <input type="submit" name="Enviar" ng-click="adicionarAluno(aluno)" ng-disabled="alunoForm.$invalid" class="btn btn-primary">
   </form>
   
   </div>
